@@ -80,6 +80,7 @@ public class AppDialogUtil {
     private static final int PLAYER_ENGINE_ID = 147;
     private static final int IGNORE_DURATION_ID = 148;
     private static final int SLEEP_TIMER_ID = 149;
+    private static final int VIDEO_SCREEN_SCALE_ID = 150;
     private static final int SUBTITLE_STYLES_ID = 45;
     private static final int SUBTITLE_SIZE_ID = 46;
     private static final int SUBTITLE_POSITION_ID = 47;
@@ -581,6 +582,31 @@ public class AppDialogUtil {
         return OptionCategory.from(SUBTITLE_POSITION_ID, OptionCategory.TYPE_RADIO_LIST, context.getString(R.string.subtitle_position), options);
     }
 
+    public static OptionCategory createVideoScreenScaleCategory(Context context, Runnable onSelectZoomMode) {
+        PlayerData playerData = PlayerData.instance(context);
+        List<OptionItem> options = new ArrayList<>();
+
+        for (int zoomPercents : new int[] {100, 90, 80, 70, 60, 50}) {
+            boolean isSelected = playerData.getZoomPercents() == zoomPercents ||
+                    (zoomPercents == 100 && playerData.getZoomPercents() == -1 &&
+                            playerData.getResizeMode() == PlayerData.RESIZE_MODE_DEFAULT);
+            options.add(createVideoZoomOption(playerData, zoomPercents, onSelectZoomMode, isSelected));
+        }
+
+        return OptionCategory.from(VIDEO_SCREEN_SCALE_ID, OptionCategory.TYPE_RADIO_LIST,
+                context.getString(R.string.video_screen_scale), options);
+    }
+
+    private static OptionItem createVideoZoomOption(PlayerData playerData, int zoomPercents,
+                                                   Runnable onSelectZoomMode, boolean isSelected) {
+        return UiOptionItem.from(String.format("%s%%", zoomPercents),
+                optionItem -> {
+                    playerData.setZoomPercents(zoomPercents);
+                    playerData.setResizeMode(PlayerData.RESIZE_MODE_DEFAULT);
+                    onSelectZoomMode.run();
+                }, isSelected);
+    }
+
     public static OptionCategory createVideoZoomCategory(Context context) {
         return createVideoZoomCategory(context, () -> {});
     }
@@ -613,12 +639,7 @@ public class AppDialogUtil {
 
         for (int[] zoomRange : zoomRanges) {
             for (int zoomPercents : zoomRange) {
-                options.add(UiOptionItem.from(String.format("%s%%", zoomPercents),
-                        optionItem -> {
-                            playerData.setZoomPercents(zoomPercents);
-                            playerData.setResizeMode(PlayerData.RESIZE_MODE_DEFAULT);
-                            onSelectZoomMode.run();
-                        },
+                options.add(createVideoZoomOption(playerData, zoomPercents, onSelectZoomMode,
                         playerData.getZoomPercents() == zoomPercents));
             }
         }

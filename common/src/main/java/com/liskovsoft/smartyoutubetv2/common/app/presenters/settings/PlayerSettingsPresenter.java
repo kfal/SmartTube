@@ -61,6 +61,7 @@ public class PlayerSettingsPresenter extends BasePresenter<Void> {
         appendPlayerButtonsCategory(settingsPresenter);
         //appendNetworkEngineCategory(settingsPresenter);
         appendVideoBufferCategory(settingsPresenter);
+        settingsPresenter.appendCategory(AppDialogUtil.createVideoScreenScaleCategory(getContext(), () -> {}));
         appendVideoZoomCategory(settingsPresenter);
         appendVideoSpeedCategory(settingsPresenter);
         appendAudioLanguageCategory(settingsPresenter);

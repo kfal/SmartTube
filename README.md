@@ -30,6 +30,7 @@ SmartTube is a free and open-source media client for Android TVs and TV boxes. I
 - Clean interface 
 - SponsorBlock integration  
 - Adjustable playback speed  
+- Video screen scale presets (100%, 90%, 80%, 70%, 60%, 50%) under Settings > Player and the player's Video zoom button. The setting is saved for future playback; selecting 100% restores the default fitted size without changing the interface size.
 - 8K resolution support  
 - 60fps playback  
 - HDR compatibility  
@@ -250,6 +251,14 @@ git submodule update --init
 adb connect <device_ip_address>
 gradlew clean installStstableDebug
 ```
+
+To check the screen-scale presets and build an APK without installing it, use JDK 11 and run:
+
+```
+gradlew :common:testStstableDebugUnitTest --tests '*VideoScreenScaleTest' :smarttubetv:assembleStstableDebug
+```
+
+The universal APK is in `smarttubetv/build/outputs/apk/ststable/debug/`. Debug builds use a different signing key from official releases, so back up your settings before uninstalling an official stable build to install this APK.
 
 
 ## Video codecs
@@ -497,6 +506,4 @@ A: No, this is technically not possible. Only the preinstalled app manager (usua
 ### Q: Can I whitelist ads on some channels?
 
 A: No, this is not possible. SmartTube does not have any code to display ads. Adding this functionality would actually take time and effort, which is instead spent on adding useful features and fixing bugs.
-
-
 

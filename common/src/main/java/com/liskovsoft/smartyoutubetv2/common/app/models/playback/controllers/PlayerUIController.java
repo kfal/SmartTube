@@ -542,12 +542,13 @@ public class PlayerUIController extends BasePlayerController {
             return;
         }
 
-        OptionCategory videoZoomCategory = AppDialogUtil.createVideoZoomCategory(
-                getContext(), () -> {
-                    getPlayer().setResizeMode(getPlayerData().getResizeMode());
-                    getPlayer().setZoomPercents(getPlayerData().getZoomPercents());
-                    getPlayer().showControls(false);
-                });
+        Runnable onSelectZoomMode = () -> {
+            getPlayer().setResizeMode(getPlayerData().getResizeMode());
+            getPlayer().setZoomPercents(getPlayerData().getZoomPercents());
+            getPlayer().showControls(false);
+        };
+        OptionCategory videoScreenScaleCategory = AppDialogUtil.createVideoScreenScaleCategory(getContext(), onSelectZoomMode);
+        OptionCategory videoZoomCategory = AppDialogUtil.createVideoZoomCategory(getContext(), onSelectZoomMode);
 
         OptionCategory videoAspectCategory = AppDialogUtil.createVideoAspectCategory(
                 getContext(), getPlayerData(), () -> getPlayer().setAspectRatio(getPlayerData().getAspectRatio()));
@@ -556,6 +557,7 @@ public class PlayerUIController extends BasePlayerController {
                 getContext(), getPlayerData(), () -> getPlayer().setRotationAngle(getPlayerData().getRotationAngle()));
 
         AppDialogPresenter settingsPresenter = getAppDialogPresenter();
+        settingsPresenter.appendCategory(videoScreenScaleCategory);
         settingsPresenter.appendRadioCategory(videoAspectCategory.title, videoAspectCategory.options);
         settingsPresenter.appendRadioCategory(videoZoomCategory.title, videoZoomCategory.options);
         settingsPresenter.appendRadioCategory(videoRotateCategory.title, videoRotateCategory.options);

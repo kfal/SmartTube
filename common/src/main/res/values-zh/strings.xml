@@ -142,6 +142,7 @@
     <string name="app_single_back_exit">单击返回键</string>
     <string name="action_video_zoom">视频缩放</string>
     <string name="video_zoom">视频缩放</string>
+    <string name="video_screen_scale">播放画面大小</string>
     <string name="video_zoom_default">默认</string>
     <string name="video_zoom_fit_width">自适应宽度</string>
     <string name="video_zoom_fit_height">自适应高度</string>

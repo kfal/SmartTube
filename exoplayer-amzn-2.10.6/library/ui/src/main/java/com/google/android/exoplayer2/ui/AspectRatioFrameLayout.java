@@ -241,8 +241,8 @@ public final class AspectRatioFrameLayout extends FrameLayout {
 
     // MODIFIED
     if (zoomPercents > 0 && zoomPercents != 100) {
-      width = (width / 100) * zoomPercents;
-      height = (height / 100) * zoomPercents;
+      width = width * zoomPercents / 100;
+      height = height * zoomPercents / 100;
     }
 
     aspectRatioUpdateDispatcher.scheduleUpdate(videoAspectRatio, viewAspectRatio, true);
