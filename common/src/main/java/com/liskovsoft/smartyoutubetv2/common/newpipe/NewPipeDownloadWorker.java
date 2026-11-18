@@ -13,6 +13,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
@@ -75,6 +76,7 @@ public class NewPipeDownloadWorker extends Worker {
             }
             createChannel();
             setForegroundAsync(foregroundInfo()).get();
+            Uri usbDirectory = NewPipeDownloadStorage.prepareUsbDirectory(getApplicationContext(), getInputData());
             DownloadChoice choice = null;
             for (DownloadChoice candidate : NewPipeService.downloadChoices(
                     NewPipeService.extract(getInputData().getString(VIDEO_ID)))) {
@@ -96,8 +98,7 @@ public class NewPipeDownloadWorker extends Worker {
             checkCancelled();
             String filename = filename(getInputData().getString(TITLE),
                     getInputData().getString(VIDEO_ID), getId().toString().substring(0, 8), choice.extension);
-            publish(result, filename, choice.mimeType);
-            String path = "Download/SmartTube/" + filename;
+            String path = publish(result, filename, choice.mimeType, usbDirectory);
             notifyFinished(getApplicationContext().getString(R.string.newpipe_download_complete), path);
             return Result.success(new Data.Builder().putString(PATH, path)
                     .putString(TITLE, getInputData().getString(TITLE)).build());
@@ -264,9 +265,37 @@ public class NewPipeDownloadWorker extends Worker {
         }
     }
 
-    private void publish(File source, String filename, String mimeType) throws IOException {
+    String publish(File source, String filename, String mimeType, Uri usbDirectory) throws IOException {
         Context context = getApplicationContext();
-        if (Build.VERSION.SDK_INT >= 29) {
+        if (usbDirectory != null) {
+            Uri uri = DocumentsContract.createDocument(context.getContentResolver(), usbDirectory, mimeType, filename);
+            if (uri == null) {
+                throw new IOException("Cannot create USB download file");
+            }
+            boolean complete = false;
+            try {
+                try (InputStream input = new FileInputStream(source);
+                     OutputStream output = context.getContentResolver().openOutputStream(uri)) {
+                    if (output == null) {
+                        throw new IOException("Cannot open USB download file");
+                    }
+                    copy(input, output);
+                }
+                checkCancelled();
+                complete = true;
+                return DocumentsContract.getDocumentId(uri).replaceFirst(":", ":/");
+            } finally {
+                if (!complete) {
+                    try {
+                        if (!DocumentsContract.deleteDocument(context.getContentResolver(), uri)) {
+                            Log.e(TAG, "Cannot remove incomplete USB download: %s", uri);
+                        }
+                    } catch (IOException | SecurityException error) {
+                        Log.e(TAG, "Cannot remove incomplete USB download: %s", error);
+                    }
+                }
+            }
+        } else if (Build.VERSION.SDK_INT >= 29) {
             ContentValues values = new ContentValues();
             values.put(MediaStore.Downloads.DISPLAY_NAME, filename);
             values.put(MediaStore.Downloads.MIME_TYPE, mimeType);
@@ -317,6 +346,7 @@ public class NewPipeDownloadWorker extends Worker {
                 }
             }
         }
+        return Environment.DIRECTORY_DOWNLOADS + "/SmartTube/" + filename;
     }
 
     static String filename(String title, String videoId, String uniqueId, String extension) {

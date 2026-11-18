@@ -6,7 +6,13 @@
     <string name="newpipe_no_streams">沒有支援的 MP4／M4A 串流。無法下載直播、私人、受限制或受 DRM 保護的內容。</string>
     <string name="newpipe_error">NewPipe：%1$s</string>
     <string name="newpipe_storage_denied">需要儲存空間權限才能存入 Downloads/SmartTube。</string>
-    <string name="newpipe_download_queued">已排入下載。可在「設定 → 播放器 → 下載管理」查看狀態，選取進行中的工作即可取消。</string>
+    <string name="newpipe_download_queued">已排入下載，儲存位置：%1$s。可在「設定 → 播放器 → 下載管理」查看狀態或取消。</string>
+    <string name="newpipe_download_already_queued">此格式已有下載工作，可在「設定 → 播放器 → 下載管理」查看狀態。</string>
+    <string name="newpipe_usb_select_folder">預設下載至外接 USB。請授權存取 USB 根目錄或其中的資料夾，SmartTube 會自動建立下載資料夾。</string>
+    <string name="newpipe_usb_access_denied">未取得 USB 寫入權限，尚未開始下載。</string>
+    <string name="newpipe_usb_wrong_volume">請選擇偵測到的 USB 上的資料夾，不要選擇內部儲存空間。</string>
+    <string name="newpipe_usb_unavailable">USB %1$s 已拔除或設為唯讀。請重新連接並允許寫入後重試。</string>
+    <string name="newpipe_usb_picker_missing">此裝置無法開啟 Android USB 資料夾授權，尚未開始下載。</string>
     <string name="newpipe_downloading">下載／合併中</string>
     <string name="newpipe_download_complete">下載完成</string>
     <string name="newpipe_download_failed">下載失敗</string>

@@ -241,7 +241,7 @@ SmartTube is developed single-handedly; there is no larger team or company behin
 
 ## Build
 
-### Custom NewPipe integration (32.72.1)
+### Custom NewPipe integration (32.72.2)
 
 This custom build embeds NewPipeExtractor v0.27.1, the version selected by the
 local NewPipe project. No separate NewPipe installation or Google login is
@@ -259,8 +259,17 @@ Video-only MP4 streams are combined with M4A audio into one MP4 without
 re-encoding. Live streams, encrypted content and unsupported formats are not
 offered. Save only content you have permission to download.
 
-Files are saved to **Downloads/SmartTube**. Allow storage access on Android
-7-9 and notifications on Android 13+ when prompted. Downloads run as persistent
+Downloads prefer a mounted **external USB/removable drive** over internal storage.
+On first use, grant Android folder access on that drive; the grant is remembered.
+Selecting the USB root automatically creates **Download/SmartTube** if missing.
+Selecting an existing folder creates **SmartTube** inside it (or reuses the selected
+SmartTube folder). USB-labelled volumes take priority when several removable drives
+are mounted. Without a removable drive, files use internal **Downloads/SmartTube**.
+The chosen drive is pinned to each queued download: unplugging it or revoking access
+reports an error instead of silently saving to internal storage.
+
+Allow storage access on Android 7-9 for internal downloads and notifications on
+Android 13+ when prompted. Downloads run as persistent
 WorkManager jobs with a foreground notification; leaving the app does not
 cancel them. **Settings > Player > Downloads** shows completion or error details;
 select a running/queued job to cancel it and use Refresh to update the list.

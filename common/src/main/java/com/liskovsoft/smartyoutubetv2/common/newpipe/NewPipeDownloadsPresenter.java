@@ -1,9 +1,14 @@
 package com.liskovsoft.smartyoutubetv2.common.newpipe;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
+import android.os.storage.StorageVolume;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -25,6 +30,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.presenters.base.BasePresenter;
 import com.liskovsoft.smartyoutubetv2.common.misc.MotherActivity;
 import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeService.DownloadChoice;
 
+import java.io.IOException;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -34,6 +40,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class NewPipeDownloadsPresenter extends BasePresenter<Void> {
     private static final int REQUEST_DOWNLOAD_PERMISSION = 17346;
+    private static final int REQUEST_USB_ACCESS = 17347;
     private Disposable mAction;
 
     private NewPipeDownloadsPresenter(Context context) {
@@ -84,7 +91,60 @@ public class NewPipeDownloadsPresenter extends BasePresenter<Void> {
 
     private void requestPermissionAndEnqueue(Video video, DownloadChoice choice) {
         Context context = getContext();
-        String permission = Build.VERSION.SDK_INT <= 28 ? Manifest.permission.WRITE_EXTERNAL_STORAGE :
+        try {
+            StorageVolume volume = NewPipeDownloadStorage.preferredVolume(context);
+            Uri tree = null;
+            if (volume != null) {
+                NewPipeDownloadStorage.requireMounted(context, volume.getUuid());
+                tree = NewPipeDownloadStorage.savedTree(context, volume.getUuid());
+                if (tree == null) {
+                    requestUsbAccess(video, choice, volume);
+                    return;
+                }
+            }
+            requestDownloadPermission(video, choice, NewPipeDownloadStorage.destination(volume, tree));
+        } catch (IOException | IllegalArgumentException | IllegalStateException | SecurityException error) {
+            showError(error);
+        }
+    }
+
+    private void requestUsbAccess(Video video, DownloadChoice choice, StorageVolume volume) {
+        if (!(getContext() instanceof MotherActivity)) {
+            showError(new IOException(getContext().getString(R.string.newpipe_usb_access_denied)));
+            return;
+        }
+        MotherActivity activity = (MotherActivity) getContext();
+        Intent intent = NewPipeDownloadStorage.accessIntent(volume);
+        activity.addOnResult((requestCode, resultCode, data) -> {
+            if (requestCode != REQUEST_USB_ACCESS) {
+                return;
+            }
+            if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
+                MessageHelpers.showLongMessage(activity, R.string.newpipe_usb_access_denied);
+                return;
+            }
+            try {
+                Uri tree = data.getData();
+                NewPipeDownloadStorage.saveTree(activity, volume.getUuid(), tree, data.getFlags());
+                requestDownloadPermission(video, choice, NewPipeDownloadStorage.destination(volume, tree));
+            } catch (IOException | IllegalArgumentException | SecurityException error) {
+                showError(error);
+            }
+        });
+        MessageHelpers.showLongMessage(activity, R.string.newpipe_usb_select_folder);
+        try {
+            activity.startActivityForResult(intent, REQUEST_USB_ACCESS);
+        } catch (ActivityNotFoundException error) {
+            showError(new IOException(activity.getString(R.string.newpipe_usb_picker_missing), error));
+        } catch (SecurityException error) {
+            showError(error);
+        }
+    }
+
+    private void requestDownloadPermission(Video video, DownloadChoice choice, Data destination) {
+        Context context = getContext();
+        String permission = Build.VERSION.SDK_INT <= 28 && destination.getString(NewPipeDownloadStorage.TREE) == null ?
+                Manifest.permission.WRITE_EXTERNAL_STORAGE :
                 Build.VERSION.SDK_INT >= 33 ? Manifest.permission.POST_NOTIFICATIONS : null;
         if (permission != null && ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
             if (!(context instanceof MotherActivity)) {
@@ -98,23 +158,23 @@ public class NewPipeDownloadsPresenter extends BasePresenter<Void> {
                             (results.length == 0 || results[0] != PackageManager.PERMISSION_GRANTED)) {
                         MessageHelpers.showLongMessage(activity, R.string.newpipe_storage_denied);
                     } else {
-                        enqueue(video, choice);
+                        enqueue(video, choice, destination);
                     }
                 }
             });
             ActivityCompat.requestPermissions(activity, new String[] {permission}, REQUEST_DOWNLOAD_PERMISSION);
         } else {
-            enqueue(video, choice);
+            enqueue(video, choice, destination);
         }
     }
 
-    private void enqueue(Video video, DownloadChoice choice) {
+    private void enqueue(Video video, DownloadChoice choice, Data destination) {
         Context context = getContext();
         if (context == null) {
             return;
         }
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(NewPipeDownloadWorker.class)
-                .setInputData(new Data.Builder().putString(NewPipeDownloadWorker.VIDEO_ID, video.videoId)
+                .setInputData(new Data.Builder().putAll(destination).putString(NewPipeDownloadWorker.VIDEO_ID, video.videoId)
                         .putString(NewPipeDownloadWorker.CHOICE, choice.key())
                         .putString(NewPipeDownloadWorker.TITLE, video.getTitle()).build())
                 .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
@@ -124,11 +184,13 @@ public class NewPipeDownloadsPresenter extends BasePresenter<Void> {
         String key = "newpipe-" + video.videoId + "-" + choice.key();
         mAction = Observable.fromCallable(() -> {
             manager.enqueueUniqueWork(key, ExistingWorkPolicy.KEEP, work).getResult().get();
-            return true;
+            return manager.getWorkInfoById(work.getId()).get() != null;
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(queued -> {
                     if (getContext() != null) {
-                        MessageHelpers.showLongMessage(getContext(), R.string.newpipe_download_queued);
+                        MessageHelpers.showLongMessage(getContext(), queued ?
+                                getContext().getString(R.string.newpipe_download_queued, NewPipeDownloadStorage.location(destination)) :
+                                getContext().getString(R.string.newpipe_download_already_queued));
                     }
                 }, this::showError);
     }
