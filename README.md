@@ -241,7 +241,15 @@ SmartTube is developed single-handedly; there is no larger team or company behin
 
 ## Build
 
-### Custom NewPipe integration (32.72.2)
+### Custom NewPipe integration (32.78.1)
+
+This custom version incorporates the playback-related fixes from upstream
+SmartTube through `c50b47882f99a49eabedf7a6d0d76744149f395c` (32.78):
+updated YouTube client selection and PoToken attestation in MediaServiceCore,
+SABR error propagation/client recovery, per-video child-mode restrictions,
+and live-playback null safety. This is a targeted playback update, not a merge
+of unrelated upstream changes. It cannot guarantee playback of private,
+deleted, geographically restricted or login-required videos.
 
 This custom build embeds NewPipeExtractor v0.27.1, the version selected by the
 local NewPipe project. No separate NewPipe installation or Google login is
@@ -252,6 +260,12 @@ the existing backend. No account tokens or cookies are sent by the NewPipe
 transport. YouTube can still reject requests (for example, rate limits, private
 videos, regional restrictions or login-required content); errors are shown,
 not bypassed.
+
+The playback controls include a **Downloads** button by default on Android 7+,
+independent of the optional NewPipe playback switch. It opens a dedicated section
+with **Download this video / audio**, download statuses, cancellation and Refresh.
+Long-press the button to go directly to download management. Downloads remain
+hidden in child mode. Downloads are user-initiated, not automatic for every video.
 
 Long-press a video and choose **Download video / audio (NewPipe)**, or use the
 same action in playback settings. Select an MP4 resolution or M4A audio stream.
@@ -281,7 +295,7 @@ Gradle 8.7 wrapper (Android Gradle Plugin 8.6.1, Build Tools 34.0.0).
 The newer Android toolchain is required to desugar the extractor's Java 17 records.
 
 ```
-gradlew :common:testStstableDebugUnitTest --tests '*NewPipe*Test' --tests '*VideoScreenScaleTest' :smarttubetv:assembleStstableDebug
+gradlew :common:testStstableDebugUnitTest --tests '*NewPipe*Test' --tests '*VideoScreenScaleTest' --tests '*SabrPlaybackRecoveryTest' :smarttubetv:testStstableDebugUnitTest --tests '*VideoPlayerDownloadsTest' :smarttubetv:assembleStstableDebug
 ```
 
 The custom combined APK is distributed under GPL-3.0-or-later because it links

@@ -36,6 +36,8 @@ import com.liskovsoft.smartyoutubetv2.common.exoplayer.selector.FormatItem;
 import com.liskovsoft.smartyoutubetv2.common.exoplayer.selector.track.SubtitleTrack;
 import com.liskovsoft.smartyoutubetv2.common.misc.MediaServiceManager;
 import com.liskovsoft.smartyoutubetv2.common.misc.ScreensaverManager;
+import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeDownloadsPresenter;
+import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeService;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.SearchData;
 import com.liskovsoft.smartyoutubetv2.common.utils.AppDialogUtil;
@@ -606,6 +608,10 @@ public class PlayerUIController extends BasePlayerController {
             onSeekInterval();
         } else if (buttonId == R.id.action_share) {
             onShareLink();
+        } else if (buttonId == R.id.action_download) {
+            if (NewPipeService.isSupported() && !getGeneralData().isChildModeEnabled()) {
+                NewPipeDownloadsPresenter.instance(getContext()).showSection(getVideo());
+            }
         } else if (buttonId == R.id.action_info) {
             onVideoInfoClicked();
         } else if (buttonId == R.id.action_pip) {
@@ -627,7 +633,9 @@ public class PlayerUIController extends BasePlayerController {
 
     @Override
     public void onButtonLongClicked(int buttonId, int buttonState) {
-        if (buttonId == R.id.action_screen_dimming) {
+        if (buttonId == R.id.action_download && NewPipeService.isSupported() && !getGeneralData().isChildModeEnabled()) {
+            NewPipeDownloadsPresenter.instance(getContext()).showDownloads();
+        } else if (buttonId == R.id.action_screen_dimming) {
             showScreenOffDialog();
         } else if (buttonId == R.id.action_subscribe || buttonId == R.id.action_channel) {
             showNotificationsDialog();

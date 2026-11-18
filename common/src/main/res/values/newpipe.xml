@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="newpipe_download_section">Downloads</string>
+    <string name="newpipe_download_current">Download this video / audio</string>
+    <string name="newpipe_download_default">Available by default. USB storage first; missing SmartTube folders are created automatically. Choose MP4 video or M4A audio.</string>
+    <string name="newpipe_download_waiting">Waiting to download</string>
     <string name="newpipe_playback">Use NewPipe for playback (no Google login, Android 7+)</string>
     <string name="newpipe_download">Download video / audio (NewPipe)</string>
     <string name="newpipe_downloads">Downloads (NewPipe)</string>

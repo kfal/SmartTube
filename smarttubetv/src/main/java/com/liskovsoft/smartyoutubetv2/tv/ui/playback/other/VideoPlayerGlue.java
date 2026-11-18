@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.liskovsoft.sharedutils.mylogger.Log;
+import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeService;
 import com.liskovsoft.smartyoutubetv2.common.prefs.GeneralData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerTweaksData;
 import com.liskovsoft.smartyoutubetv2.tv.R;
@@ -33,6 +34,7 @@ import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.ChannelAction;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.ChatAction;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.ClosedCaptioningAction;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.ContentBlockAction;
+import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.DownloadAction;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.FlipAction;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.HighQualityAction;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.RotateAction;
@@ -113,6 +115,7 @@ public class VideoPlayerGlue extends MaxControlsVideoPlayerGlue<PlayerAdapter> i
         putAction(thumbsDownAction);
 
         putAction(new HighQualityAction(context));
+        putAction(new DownloadAction(context));
         putAction(new PlaybackModeAction(context));
         putAction(new ChannelAction(context));
         putAction(new ClosedCaptioningAction(context));
@@ -153,6 +156,9 @@ public class VideoPlayerGlue extends MaxControlsVideoPlayerGlue<PlayerAdapter> i
         //adapter.add(mFastForwardAction);
         if (mPlayerTweaksData.isPlayerButtonEnabled(PlayerTweaksData.PLAYER_BUTTON_NEXT)) {
             adapter.add(mSkipNextAction);
+        }
+        if (NewPipeService.isSupported() && !mGeneralData.isChildModeEnabled()) {
+            adapter.add(mActions.get(R.id.action_download));
         }
         if (mPlayerTweaksData.isPlayerButtonEnabled(PlayerTweaksData.PLAYER_BUTTON_REPEAT_MODE)) {
             adapter.add(mActions.get(R.id.action_repeat));

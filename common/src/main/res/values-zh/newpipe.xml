@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="newpipe_download_section">下载专区</string>
+    <string name="newpipe_download_current">下载当前视频／音频</string>
+    <string name="newpipe_download_default">默认可用，优先保存到外接 USB，缺少的 SmartTube 文件夹会自动创建。可选择 MP4 视频或 M4A 音频。</string>
+    <string name="newpipe_download_waiting">等待下载</string>
     <string name="newpipe_playback">使用 NewPipe 播放（免 Google 登录，Android 7 以上）</string>
     <string name="newpipe_download">下载视频／音频（NewPipe）</string>
     <string name="newpipe_downloads">下载管理（NewPipe）</string>

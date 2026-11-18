@@ -42,6 +42,7 @@ public class NewPipeDownloadsPresenter extends BasePresenter<Void> {
     private static final int REQUEST_DOWNLOAD_PERMISSION = 17346;
     private static final int REQUEST_USB_ACCESS = 17347;
     private Disposable mAction;
+    private Video mSectionVideo;
 
     private NewPipeDownloadsPresenter(Context context) {
         super(context);
@@ -49,6 +50,11 @@ public class NewPipeDownloadsPresenter extends BasePresenter<Void> {
 
     public static NewPipeDownloadsPresenter instance(Context context) {
         return new NewPipeDownloadsPresenter(context);
+    }
+
+    public void showSection(Video video) {
+        mSectionVideo = video;
+        showDownloads();
     }
 
     public void show(Video video) {
@@ -209,6 +215,11 @@ public class NewPipeDownloadsPresenter extends BasePresenter<Void> {
             return;
         }
         AppDialogPresenter dialog = AppDialogPresenter.instance(getContext());
+        if (mSectionVideo != null && mSectionVideo.hasVideo()) {
+            dialog.appendSingleButton(UiOptionItem.from(getContext().getString(R.string.newpipe_download_current),
+                    getContext().getString(R.string.newpipe_download_default),
+                    option -> show(mSectionVideo)));
+        }
         if (jobs.isEmpty()) {
             dialog.appendSingleButton(UiOptionItem.from(getContext().getString(R.string.newpipe_downloads_empty),
                     option -> dialog.closeDialog()));
@@ -236,7 +247,8 @@ public class NewPipeDownloadsPresenter extends BasePresenter<Void> {
         }
         dialog.appendSingleButton(UiOptionItem.from(getContext().getString(R.string.newpipe_refresh),
                 option -> showDownloads()));
-        dialog.showDialog(getContext().getString(R.string.newpipe_downloads));
+        dialog.showDialog(getContext().getString(mSectionVideo == null ?
+                R.string.newpipe_downloads : R.string.newpipe_download_section));
     }
 
     private void cancel(WorkInfo job) {
@@ -255,7 +267,7 @@ public class NewPipeDownloadsPresenter extends BasePresenter<Void> {
             case SUCCEEDED: resource = R.string.newpipe_download_complete; break;
             case FAILED: resource = R.string.newpipe_download_failed; break;
             case CANCELLED: resource = R.string.newpipe_download_cancelled; break;
-            default: resource = R.string.newpipe_download_queued; break;
+            default: resource = R.string.newpipe_download_waiting; break;
         }
         return getContext().getString(resource);
     }
