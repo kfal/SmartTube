@@ -12,6 +12,7 @@ import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.dash.DashChunkSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
@@ -44,6 +45,7 @@ import com.liskovsoft.smartyoutubetv2.common.exoplayer.errors.DashDefaultLoadErr
 import com.liskovsoft.smartyoutubetv2.common.exoplayer.errors.SabrDefaultLoadErrorHandlingPolicy;
 import com.liskovsoft.smartyoutubetv2.common.exoplayer.errors.TrackErrorFixer;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerTweaksData;
+import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeService;
 import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
 import com.liskovsoft.googlecommon.common.helpers.DefaultHeaders;
 
@@ -106,6 +108,17 @@ public class ExoMediaSourceFactory {
 
         //return mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources); // or playlist
         return mediaSources[0]; // item with max resolution
+    }
+
+    public MediaSource fromVideoAudio(String videoUrl, String audioUrl) {
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mContext,
+                new OkHttpDataSourceFactory(NewPipeService.getClient(), NewPipeService.USER_AGENT));
+        MediaSource video = new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(videoUrl));
+        if (audioUrl == null) {
+            return video;
+        }
+        MediaSource audio = new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(audioUrl));
+        return new MergingMediaSource(video, audio);
     }
 
     /**

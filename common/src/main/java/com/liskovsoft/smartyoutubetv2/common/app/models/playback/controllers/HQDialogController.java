@@ -9,6 +9,8 @@ import com.liskovsoft.smartyoutubetv2.common.app.models.playback.ui.UiOptionItem
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.AppDialogPresenter;
 import com.liskovsoft.smartyoutubetv2.common.exoplayer.selector.FormatItem;
 import com.liskovsoft.smartyoutubetv2.common.utils.AppDialogUtil;
+import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeDownloadsPresenter;
+import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeService;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -60,6 +62,10 @@ public class HQDialogController extends BasePlayerController {
         appendOptions(mCategoriesInt);
         appendOptions(mCategories);
 
+        if (NewPipeService.isSupported() && getVideo() != null && !getGeneralData().isChildModeEnabled()) {
+            mAppDialogPresenter.appendSingleButton(UiOptionItem.from(getContext().getString(R.string.newpipe_download),
+                    option -> NewPipeDownloadsPresenter.instance(getContext()).show(getVideo())));
+        }
         mAppDialogPresenter.showDialog(getContext().getString(R.string.playback_settings), this::onDialogHide);
     }
 

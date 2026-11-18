@@ -34,6 +34,8 @@ import com.liskovsoft.smartyoutubetv2.common.prefs.GeneralData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.MainUIData;
 import com.liskovsoft.smartyoutubetv2.common.utils.AppDialogUtil;
 import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
+import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeDownloadsPresenter;
+import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeService;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 
@@ -182,6 +184,7 @@ public class VideoMenuPresenter extends BaseMenuPresenter {
         }
 
         appendReturnToBackgroundVideoButton();
+        appendDownloadButton();
 
         for (Long menuItem : MainUIData.instance(getContext()).getMenuItemsOrdered()) {
             MenuAction menuAction = mMenuMapping.get(menuItem);
@@ -203,6 +206,7 @@ public class VideoMenuPresenter extends BaseMenuPresenter {
         }
 
         appendReturnToBackgroundVideoButton();
+        appendDownloadButton();
 
         for (Long menuItem : MainUIData.instance(getContext()).getMenuItemsOrdered()) {
             MenuAction menuAction = mMenuMapping.get(menuItem);
@@ -214,6 +218,14 @@ public class VideoMenuPresenter extends BaseMenuPresenter {
         if (!mDialogPresenter.isEmpty()) {
             String title = mVideo != null ? mVideo.getTitle() : null;
             mDialogPresenter.showDialog(title);
+        }
+    }
+
+    private void appendDownloadButton() {
+        if (NewPipeService.isSupported() && mVideo != null && mVideo.hasVideo() &&
+                !mVideo.isPlaylistAsChannel() && !GeneralData.instance(getContext()).isChildModeEnabled()) {
+            mDialogPresenter.appendSingleButton(UiOptionItem.from(getContext().getString(R.string.newpipe_download),
+                    option -> NewPipeDownloadsPresenter.instance(getContext()).show(mVideo)));
         }
     }
 

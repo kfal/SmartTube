@@ -1,0 +1,15 @@
+This custom SmartTube build includes NewPipeExtractor v0.27.1.
+Copyright Team NewPipe and contributors.
+https://github.com/TeamNewPipe/NewPipeExtractor/tree/v0.27.1
+License: GNU General Public License, version 3 or (at your option) any later version.
+The full license accompanies this notice as COPYING-NewPipe.
+
+The combined custom build is distributed under GPL-3.0-or-later.
+The original SmartTube code retains its MIT copyright and permission notice
+in the repository LICENSE file. This does not relicense upstream SmartTube.
+Corresponding source for this custom build must accompany any distributed APK;
+the exact NewPipeExtractor source version is identified above.
+
+This integration uses NewPipeExtractor as a dependency, with an independent
+HTTP transport and Android download worker. It does not include or modify
+the local NewPipe application's code or copy Google account credentials.

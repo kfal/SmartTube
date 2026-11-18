@@ -126,6 +126,10 @@ public class ExoPlayerController implements Player.EventListener, LiveStateProvi
         openMediaSource(mediaSource);
     }
 
+    public void openVideoAudio(String videoUrl, String audioUrl) {
+        openMediaSource(mMediaSourceFactory.fromVideoAudio(videoUrl, audioUrl));
+    }
+
     public void openMerged(MediaItemFormatInfo formatInfo, String hlsPlaylistUrl) {
         MediaSource dashMediaSource = mMediaSourceFactory.fromDashFormatInfo(formatInfo);
         MediaSource hlsMediaSource = mMediaSourceFactory.fromHlsPlaylist(hlsPlaylistUrl);

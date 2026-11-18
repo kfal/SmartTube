@@ -240,8 +240,47 @@ SmartTube is developed single-handedly; there is no larger team or company behin
 
 
 ## Build
+
+### Custom NewPipe integration (32.72.1)
+
+This custom build embeds NewPipeExtractor v0.27.1, the version selected by the
+local NewPipe project. No separate NewPipe installation or Google login is
+required. Enable **Settings > Player > Use NewPipe for playback** for anonymous
+stream extraction. The existing SmartTube backend remains the default.
+NewPipe playback and downloads require Android 7 or newer; older devices keep
+the existing backend. No account tokens or cookies are sent by the NewPipe
+transport. YouTube can still reject requests (for example, rate limits, private
+videos, regional restrictions or login-required content); errors are shown,
+not bypassed.
+
+Long-press a video and choose **Download video / audio (NewPipe)**, or use the
+same action in playback settings. Select an MP4 resolution or M4A audio stream.
+Video-only MP4 streams are combined with M4A audio into one MP4 without
+re-encoding. Live streams, encrypted content and unsupported formats are not
+offered. Save only content you have permission to download.
+
+Files are saved to **Downloads/SmartTube**. Allow storage access on Android
+7-9 and notifications on Android 13+ when prompted. Downloads run as persistent
+WorkManager jobs with a foreground notification; leaving the app does not
+cancel them. **Settings > Player > Downloads** shows completion or error details;
+select a running/queued job to cancel it and use Refresh to update the list.
+An interrupted job restarts rather than resuming a partial file. Expired URLs
+are re-extracted at the start of each job.
+
+Build this version with **JDK 17**, Android SDK 34 and the repository's
+Gradle 8.7 wrapper (Android Gradle Plugin 8.6.1, Build Tools 34.0.0).
+The newer Android toolchain is required to desugar the extractor's Java 17 records.
+
+```
+gradlew :common:testStstableDebugUnitTest --tests '*NewPipe*Test' --tests '*VideoScreenScaleTest' :smarttubetv:assembleStstableDebug
+```
+
+The custom combined APK is distributed under GPL-3.0-or-later because it links
+NewPipeExtractor. See `common/src/main/assets/NEWPIPE-NOTICE` and
+`common/src/main/assets/COPYING-NewPipe`; upstream SmartTube's MIT notice is
+preserved. When sharing an APK, include this exact source and its build files.
     
-**NOTE: OpenJDK 14 or older (!) is required. Newer JDK could cause app crash!**  
+**Upstream build note (without the custom NewPipe integration): OpenJDK 14 or older is required.**
 To build and install debug version, run these commands:
 
 ```
@@ -252,7 +291,7 @@ adb connect <device_ip_address>
 gradlew clean installStstableDebug
 ```
 
-To check the screen-scale presets and build an APK without installing it, use JDK 11 and run:
+To check the screen-scale presets and build an APK without installing it, use JDK 17 for this custom build and run:
 
 ```
 gradlew :common:testStstableDebugUnitTest --tests '*VideoScreenScaleTest' :smarttubetv:assembleStstableDebug

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="newpipe_playback">Use NewPipe for playback (no Google login, Android 7+)</string>
+    <string name="newpipe_download">Download video / audio (NewPipe)</string>
+    <string name="newpipe_downloads">Downloads (NewPipe)</string>
+    <string name="newpipe_no_streams">No supported MP4/M4A streams. Live, private, restricted or DRM-protected media cannot be downloaded.</string>
+    <string name="newpipe_error">NewPipe: %1$s</string>
+    <string name="newpipe_storage_denied">Storage permission is required to save to Downloads/SmartTube.</string>
+    <string name="newpipe_download_queued">Queued. See Settings → Player → Downloads for status. Select an active download to cancel.</string>
+    <string name="newpipe_downloading">Downloading / merging</string>
+    <string name="newpipe_download_complete">Download complete</string>
+    <string name="newpipe_download_failed">Download failed</string>
+    <string name="newpipe_download_cancelled">Download cancelled</string>
+    <string name="newpipe_downloads_empty">No downloads</string>
+    <string name="newpipe_refresh">Refresh</string>
+</resources>

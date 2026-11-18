@@ -20,6 +20,8 @@ import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerTweaksData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.SearchData;
 import com.liskovsoft.smartyoutubetv2.common.utils.AppDialogUtil;
 import com.liskovsoft.youtubeapi.service.internal.MediaServiceData;
+import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeService;
+import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeDownloadsPresenter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +58,14 @@ public class PlayerSettingsPresenter extends BasePresenter<Void> {
     public void show() {
         AppDialogPresenter settingsPresenter = AppDialogPresenter.instance(getContext());
 
+        if (NewPipeService.isSupported()) {
+            settingsPresenter.appendSingleSwitch(UiOptionItem.from(
+                    getContext().getString(R.string.newpipe_playback),
+                    option -> NewPipeService.setEnabled(getContext(), option.isSelected()),
+                    NewPipeService.isEnabled(getContext())));
+            settingsPresenter.appendSingleButton(UiOptionItem.from(getContext().getString(R.string.newpipe_downloads),
+                    option -> NewPipeDownloadsPresenter.instance(getContext()).showDownloads()));
+        }
         appendPlaybackModeCategory(settingsPresenter);
         appendVideoPresetsCategory(settingsPresenter);
         appendPlayerButtonsCategory(settingsPresenter);

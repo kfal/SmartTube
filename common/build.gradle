@@ -3,10 +3,11 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.android.library'
 
 android {
-    // FIX: Default interface methods are only supported starting with Android N (--min-api 24)
+    // Enable record desugaring for NewPipeExtractor on older Android versions.
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     compileSdkVersion project.properties.compileSdkVersion
@@ -52,11 +53,16 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    implementation 'com.github.TeamNewPipe:NewPipeExtractor:v0.27.1'
+    implementation 'com.squareup.okhttp3:okhttp:' + okhttpVersion
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'androidx.appcompat:appcompat:' + appCompatXVersion
     testImplementation 'junit:junit:' + junitVersion
-    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
+    testImplementation 'androidx.work:work-testing:' + workVersion
+    testImplementation 'org.robolectric:robolectric:4.11.1'
 
     implementation project(':sharedutils')
     implementation project(':fragment-1.1.0')

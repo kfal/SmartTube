@@ -25,8 +25,19 @@ import com.liskovsoft.smartyoutubetv2.common.misc.MediaServiceManager;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerData;
 import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
 import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
+import com.liskovsoft.smartyoutubetv2.common.newpipe.NewPipeService;
 
+import org.schabi.newpipe.extractor.stream.AudioStream;
+import org.schabi.newpipe.extractor.stream.StreamInfo;
+import org.schabi.newpipe.extractor.stream.VideoStream;
+
+import java.io.IOException;
+import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class VideoLoaderController extends BasePlayerController {
     private static final String TAG = VideoLoaderController.class.getSimpleName();
@@ -255,6 +266,22 @@ public class VideoLoaderController extends BasePlayerController {
         Utils.post(mShowProgressBar);
         disposeActions();
 
+        if (NewPipeService.isEnabled(getContext())) {
+            mFormatInfoAction = Observable.fromCallable(() -> NewPipeService.extract(video.videoId))
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(info -> processNewPipeInfo(video, info), error -> {
+                        if (getPlayer() != null && getVideo() == video) {
+                            getPlayer().showProgressBar(false);
+                            getPlayer().setTitle(getContext().getString(R.string.newpipe_error, error.getMessage()));
+                            MessageHelpers.showLongMessage(getContext(),
+                                    getContext().getString(R.string.newpipe_error, error.getMessage()));
+                            Log.e(TAG, "NewPipe extraction failed: %s", error);
+                        }
+                    });
+            return;
+        }
+
         ServiceManager service = YouTubeServiceManager.instance();
         MediaItemService mediaItemManager = service.getMediaItemService();
         mFormatInfoAction = mediaItemManager.getFormatInfoObserve(video.videoId)
@@ -263,6 +290,32 @@ public class VideoLoaderController extends BasePlayerController {
                                getPlayer().showProgressBar(false);
                                mErrorFixerController.runFormatErrorAction(error);
                            });
+    }
+
+    private void processNewPipeInfo(Video video, StreamInfo info) throws IOException {
+        if (getPlayer() == null || getVideo() != video) {
+            return;
+        }
+        if (info.getHlsUrl() != null && !info.getHlsUrl().isEmpty()) {
+            getPlayer().openHlsUrl(info.getHlsUrl());
+        } else {
+            List<VideoStream> videos = NewPipeService.videoStreams(info);
+            List<AudioStream> audio = NewPipeService.audioStreams(info);
+            VideoStream selected = null;
+            for (VideoStream stream : videos) {
+                if (!stream.isVideoOnly() || !audio.isEmpty()) {
+                    selected = stream;
+                    break;
+                }
+            }
+            if (selected == null) {
+                throw new IOException(getContext().getString(R.string.newpipe_no_streams));
+            }
+            getPlayer().openVideoAudio(selected.getContent(), selected.isVideoOnly() ? audio.get(0).getContent() : null);
+        }
+        video.title = info.getName();
+        getPlayer().setTitle(video.title);
+        getPlayer().showBackground(null);
     }
 
     private void processFormatInfo(MediaItemFormatInfo formatInfo) {

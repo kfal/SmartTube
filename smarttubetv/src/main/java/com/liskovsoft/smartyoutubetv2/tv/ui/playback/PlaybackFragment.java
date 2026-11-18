@@ -976,6 +976,11 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
     }
 
     @Override
+    public void openVideoAudio(String videoUrl, String audioUrl) {
+        mExoPlayerController.openVideoAudio(videoUrl, audioUrl);
+    }
+
+    @Override
     public void openMerged(MediaItemFormatInfo formatInfo, String hlsPlaylistUrl) {
         mExoPlayerController.openMerged(formatInfo, hlsPlaylistUrl);
     }

@@ -286,6 +286,11 @@ public class EmbedPlayerView extends PlayerView implements PlaybackView {
     }
 
     @Override
+    public void openVideoAudio(String videoUrl, String audioUrl) {
+        mExoPlayerController.openVideoAudio(videoUrl, audioUrl);
+    }
+
+    @Override
     public void openMerged(MediaItemFormatInfo formatInfo, String hlsPlaylistUrl) {
         mExoPlayerController.openMerged(formatInfo, hlsPlaylistUrl);
     }

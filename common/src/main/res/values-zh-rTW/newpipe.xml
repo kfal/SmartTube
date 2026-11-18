@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="newpipe_playback">使用 NewPipe 播放（免 Google 登入，Android 7 以上）</string>
+    <string name="newpipe_download">下載影片／音訊（NewPipe）</string>
+    <string name="newpipe_downloads">下載管理（NewPipe）</string>
+    <string name="newpipe_no_streams">沒有支援的 MP4／M4A 串流。無法下載直播、私人、受限制或受 DRM 保護的內容。</string>
+    <string name="newpipe_error">NewPipe：%1$s</string>
+    <string name="newpipe_storage_denied">需要儲存空間權限才能存入 Downloads/SmartTube。</string>
+    <string name="newpipe_download_queued">已排入下載。可在「設定 → 播放器 → 下載管理」查看狀態，選取進行中的工作即可取消。</string>
+    <string name="newpipe_downloading">下載／合併中</string>
+    <string name="newpipe_download_complete">下載完成</string>
+    <string name="newpipe_download_failed">下載失敗</string>
+    <string name="newpipe_download_cancelled">下載已取消</string>
+    <string name="newpipe_downloads_empty">沒有下載工作</string>
+    <string name="newpipe_refresh">重新整理</string>
+</resources>

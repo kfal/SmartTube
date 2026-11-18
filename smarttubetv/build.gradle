@@ -41,10 +41,11 @@ if (new File("${projectDir}/google-services.json").exists() && (getGradle().getS
 }
 
 android {
-    // FIX: Default interface methods are only supported starting with Android N (--min-api 24)
+    // Enable record desugaring for NewPipeExtractor on older Android versions.
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     compileSdkVersion project.properties.compileSdkVersion
@@ -57,8 +58,8 @@ android {
         applicationId "app.smarttube"
         minSdkVersion project.properties.minSdkVersion
         targetSdkVersion project.properties.targetSdkVersion
-        versionCode 2462
-        versionName "32.72"
+        versionCode 2463
+        versionName "32.72.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
 
@@ -181,6 +182,7 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     implementation 'androidx.leanback:leanback:' + leanbackXVersion
